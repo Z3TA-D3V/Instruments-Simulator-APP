@@ -1,8 +1,9 @@
 import { Component, inject, signal, effect } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { Link } from '../../Models/HomePage/HomePage.model';
+import { Router, RouterOutlet } from '@angular/router';
 import { HomePageService } from './HomePage.service';
-import { LinksComponent } from '../../components/Links.component';
+import { LinksComponent } from '../../components/Links/Links.component';
+import { InstrumentViewer } from '../../components/InstrumentViewer/InstrumentViewer';
+import { Link } from '../../Models/HomePage/HomePage.model';
 
 @Component({
   selector: 'home-page',
@@ -10,16 +11,20 @@ import { LinksComponent } from '../../components/Links.component';
   templateUrl: './HomePage.html'
 })
 export class HomePage {
+    private router = inject(Router);
     homePageService = inject(HomePageService);
     protected readonly title = signal('This is the Home Page');
-
     links = signal(this.homePageService.initLinks());
-    selectedLink = signal(this.links()[0]);
 
     constructor() {
         effect(() => {
             console.log("Links: ", this.links());
         });
+    }
+
+    onLinkSelected($link: Link) {
+        console.log("HomePage - Link selected: ", $link);
+        this.router.navigate([$link.path]);
     }
 
 

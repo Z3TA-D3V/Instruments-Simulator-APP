@@ -1,0 +1,19 @@
+<section class="bg-color-secondary h-dvh">
+    <section class="flex justify-center py-6">
+        <img class="w-16 h-16 rounded-full" src="/assets/image/profile-pic.jpeg">
+    </section>
+
+    <ul>
+        @for(link of links(); track link.path){
+            <li class="p-2 hover:filter-[brightness(0)_saturate(100%)_invert(83%)_sepia(27%)_saturate(8044%)_hue-rotate(359deg)_brightness(110%)_contrast(104%)] cursor-pointer" (click)="onRedirect(link)" >
+                <label class="flex justify-center">
+                    <img [src]="link.iconUrl" 
+                        class="w-12 h-12 filter-[brightness(0)_invert(1)]"
+                        alt="{{link.name}}-icon">
+                </label>
+                <p class="text-center">{{link.name}}</p>
+            </li>
+        }
+    </ul>
+
+</section>
