@@ -45,7 +45,7 @@ export class Altimeter {
     TOTAL_DEGREES: number = 360;
     FEET_PER_ALTIMETER: number = 1000;
 
-    DEFAULT_ALTITUDE: number = 1000;
+    DEFAULT_ALTITUDE: number = 10000;
     DEFAULT_DEGREES: number = 0;
 
     CLIMB_RATE: number = 800; // feet per second
@@ -59,6 +59,12 @@ export class Altimeter {
         electric: "ELECT"
     }
     pneuModeSelected = signal<string>(this.pneuModes.pneumatic);
+
+    altitudeCalibration = signal<number>(2882);
+    literals = signal({
+        calibrationAltitude: "IN. MG",
+        altitudex1000ft: "1000"
+    })
 
     constructor() {
         const coords: Coordinates[]  = this.generateNumbersCoordinates();

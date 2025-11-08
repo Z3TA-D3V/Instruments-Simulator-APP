@@ -8,7 +8,9 @@
                     [style.transform]="'translate(' + coordinate.x + 'px, ' + coordinate.y + 'px) translate(-50%, -50%)'">
                     {{coordinate.number}}
                 </div>
+                
 
+                <!-- TODO: Ahora mismo hay 50 elementos por array, esta pintando todos cada vez que pinta un numero, hay que agrupar solo 5 grados, -->
                 @for(gap of coordinate.coordinatesGaps; track gap.degree; let index = $index){
                     @if(index % altimeterConfig().altimeterGapAmount == 0){
                         <div class="number-gap big" [style.transform]="'translate(-50%, -50%) translate(' + gap.x + 'px, ' + gap.y + 'px) rotate(' + gap.degree + 'deg)'"></div>
@@ -37,6 +39,19 @@
         <div class="clock-altitude">
             <div class="altitude-window">
                 <p class="altitude-text">{{ currentAltitudeInfo().fixedAltitude }}</p>
+            </div>
+            <div class="clock-altitude-label">
+                <p class="clock-altitude-label-text ml-4">{{ literals().altitudex1000ft }}</p>
+            </div>
+        </div>
+
+        
+        <div class="clock-calibration-altitude">
+            <div class="altitude-calibration-label">
+                <p class="altitude-calibration-label-text">{{ literals().calibrationAltitude }}</p>
+            </div>
+            <div class="altitude-calibration-window">
+                <p class="altitude-calibration-text">{{ altitudeCalibration() }}</p>
             </div>
         </div>
     </div>
