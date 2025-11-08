@@ -1,0 +1,184 @@
+/* Contenedor principal del reloj */
+.altimeter-box{
+    background-color: #1e1c1a;
+    border-radius: 5%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.clock {
+    position: relative;
+    background-color: #1e201f;
+    border: 8px solid black;
+    border-radius: 50%;
+    margin: 20px auto; /* Para centrar el reloj horizontalmente */
+}
+
+/* Contenedor de la cara del reloj */
+.clock-face {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* Estilo para los números */
+.number {
+    display: block;
+    position: absolute;
+    font-size: 2.5rem;
+    /* Posicionamos desde el centro */
+    top: 50%;
+    left: 50%;
+    /* Aseguramos que el punto de transformación es el centro del número */
+    transform-origin: center;
+    /* Evitamos que el texto se rompa */
+    white-space: nowrap;
+    /* Añadimos un pequeño padding para mejor visibilidad */
+    padding: 5px;
+    /* Opcional: color y estilo del texto */
+    color: white;
+    font-weight: bold;
+}
+
+.number-gap{
+    position: absolute;
+    width: 2px;
+    height: 5%;
+    background-color: white;
+
+    top: 50%;
+    left: 50%;
+
+    transform-origin: center;
+}
+
+.big{
+   height: 8% !important; 
+   width: 4px;
+}
+
+.clock-hand{
+    position: absolute;
+    width: 5px;
+    height: 80%;
+    top: 50%;
+    left: 50%;
+    transform-origin: center;
+    z-index: 4;
+    
+}
+
+.clock-body{
+    background: linear-gradient(
+    to bottom,
+    white 37.5%,    /* primera mitad blanca */
+    black 37.5%   /* segunda mitad negra */
+    );
+    position: absolute;
+    width: 100%;
+    height: 100%;
+
+}
+
+.clock-tip{
+    position: absolute;
+    width: 400%;
+    height: 35%;
+    background-color: white;
+
+
+    left: 50%;
+    top: 10%;
+    transform: translate(-50%, -50%);
+    clip-path: polygon(50% 7.5%, 100% 20%, 100% 80%, 50% 92.5%, 0% 80%, 0% 20%);
+}
+
+.clock-center{
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background-color: black;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.clock-altitude {
+    position: absolute;
+    top: 50%;
+    left: 41.5%;
+    width: 44%;
+    height: 15%;
+    border: white 5px solid;
+    padding: 2%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 2;
+
+}
+
+.altitude-window {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+}
+
+.altitude-text {
+    color: white;
+    white-space: nowrap;
+    text-align: center;
+    max-width: 100%;
+    font-size: 170%;
+    font-weight: 500;
+    letter-spacing: 0.6rem;
+
+}
+
+.clock-pneu{
+    position: absolute;
+    top: 32.5%;
+    left: 32.5%;
+    width: 20%;
+    height: 8%;
+    border: black 2px solid;
+    border-radius: 0.5rem;
+    padding: 2%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 3;
+}
+
+
+.pneu-window{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+
+}
+.pneu-text {
+    font-weight: 400;
+}
+
+.elect-active {
+    background-color: #010100;
+    color: white;
+}
+
+.pneu-active {
+    background-color: #ffc466;
+    color: black;
+}
+
