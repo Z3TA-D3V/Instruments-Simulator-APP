@@ -1,10 +1,12 @@
 /* Contenedor principal del reloj */
 .altimeter-box{
-    background-color: #1e1c1a;
+    position: relative;
+    background-color: #312f2e;
     border-radius: 5%;
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
 }
 .clock {
     position: relative;
@@ -63,6 +65,7 @@
     height: 80%;
     top: 50%;
     left: 50%;
+    transform: translate(-50%, -50%);
     transform-origin: center;
     z-index: 4;
     
@@ -251,4 +254,105 @@
     font-weight: 500;
     font-size: 0.75rem;
 
+}
+
+.altimeter-calibration-box{
+    position: absolute;
+    top: 88.5%;
+    left: 11.5%;
+    width: 20%;
+    height: 20%;
+
+
+    transform: translate(-50%, -50%);
+}
+
+.altimeter-calibration-knob{
+    width: 100%;
+    height: 100%;
+
+    border: 1px solid white;
+    border-radius: 100%;
+
+    transition: transform 0.2s ease;
+
+    background-color: #010100;
+}
+
+.alimeter-calibration-tip{
+    position: absolute;
+    width: 10%;
+    height: 90%;
+    background: linear-gradient(
+    to bottom,
+    white 20%,    /* primera mitad blanca */
+    black 20%   /* segunda mitad negra */
+    );
+
+
+    transform-origin: center;
+    top: 50%;
+    left: 50%;
+
+    border-radius: 20% 20% 0% 0%;
+
+
+
+
+    z-index: 4;
+}
+
+.izqda, .dcha {
+    position: absolute;
+    transform: translate(-0%, -50%);
+}
+
+
+
+.izqda{
+    width: 50%;
+    height: 200%;
+    top: 50%;
+    left: 0%;
+    cursor: zoom-out;
+
+    z-index: 5;
+
+}
+
+.dcha{
+    width: 50%;
+    height: 200%;
+    cursor: zoom-in;
+
+    top: 50%;
+    left: 50%;
+    z-index: 5;
+
+}
+
+.center {
+    position: absolute;
+    width: 35%;
+    height: 35%;
+    top: 50%;
+    left: 50%;
+    border-radius: 100%;
+    cursor: pointer;
+
+    transform: translate(-50%, -50%);
+
+
+    z-index: 9999;
+}
+
+.center:hover ~ .altimeter-calibration-knob {
+    transform: scale(0.8); 
+}
+
+.izqda:hover ~ .altimeter-calibration-knob{
+    transform: scale(1.1);
+}
+.dcha:hover ~ .altimeter-calibration-knob{
+    transform: scale(1.1);
 }
