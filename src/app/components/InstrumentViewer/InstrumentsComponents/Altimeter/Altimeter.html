@@ -3,7 +3,7 @@
 <section class="altimeter-box" [style.width]="altimeterConfig().altimeterWidth + 'px'" [style.height]="altimeterConfig().altimeterHeight + 'px'">
     <div class="clock" >
         <div class="clock-face" [style.width]="altimeterConfig().clockWidth + 'px'" [style.height]="altimeterConfig().clockHeight + 'px'">
-            @for(coordinate of coordinates(); track coordinate.number) {
+            @for(coordinate of coordinates().coordinateNumbers; track coordinate.number) {
                 <div class="number" 
                     [style.transform]="'translate(' + coordinate.x + 'px, ' + coordinate.y + 'px) translate(-50%, -50%)'">
                     {{coordinate.number}}
@@ -11,7 +11,7 @@
                 
 
                 <!-- TODO: Ahora mismo hay 50 elementos por array, esta pintando todos cada vez que pinta un numero, hay que agrupar solo 5 grados, -->
-                @for(gap of coordinate.coordinatesGaps; track gap.degree; let index = $index){
+                @for(gap of coordinates().coordinateGap; track gap.degree; let index = $index){
                     @if(index % altimeterConfig().altimeterGapAmount == 0){
                         <div class="number-gap big" [style.transform]="'translate(-50%, -50%) translate(' + gap.x + 'px, ' + gap.y + 'px) rotate(' + gap.degree + 'deg)'"></div>
                     }@else{
@@ -19,8 +19,6 @@
                     }
                 }
             }
-
-
 
             <div class="clock-hand" [style.transform]="'translate(-50%, -50%) rotate(' + currentAltitudeInfo().degrees + 'deg)'">
                 <div class="clock-tip"></div>
@@ -53,6 +51,15 @@
             <div class="altitude-calibration-window">
                 <p class="altitude-calibration-text">{{ altitudeCalibration() }}</p>
             </div>
+        </div>
+    </div>
+
+    <div class="altimeter-calibration-box">
+        <div class="izqda" (click)="onBarometricPressure('-')"></div>
+        <div class="center" (click)="onBarometricPressure('reset')"></div>
+        <div class="dcha" (click)="onBarometricPressure('+')"></div>
+        <div class="altimeter-calibration-knob">
+            <div class="alimeter-calibration-tip" [style.transform]="'translate(-50%, -50%) rotate(' + currentKnobCalibrationDegrees() + 'deg)'"></div>
         </div>
     </div>
 </section>
