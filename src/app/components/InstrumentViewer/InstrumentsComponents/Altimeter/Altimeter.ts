@@ -1,10 +1,10 @@
-import { Component, Signal, signal, WritableSignal } from '@angular/core';
+import { Component, Signal, signal, WritableSignal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { AltimeterConfig, getAltimeterConfig } from './altimeter-config';
 import { AltimeterChart } from './AltimeterChart/Altimeter';
-import { clear } from 'console';
 
-interface Coordinates{
+
+interface Coordinates {
     coordinateNumbers: CoordinatesNumbers[];
     coordinateGap: CoordinatesGap[];
 }
@@ -49,10 +49,11 @@ interface AltimeterChartData {
 }
 
 @Component({
-  selector: 'altimeter',
-  imports: [NgClass, AltimeterChart],
-  templateUrl: './Altimeter.html',
-  styleUrls: ['./Altimeter.css']
+    selector: 'altimeter',
+    imports: [NgClass, AltimeterChart],
+    templateUrl: './Altimeter.html',
+    styleUrls: ['./Altimeter.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Altimeter {
 
@@ -71,13 +72,32 @@ export class Altimeter {
         data: [],
         label: []
     });
-    coordinates = signal<Coordinates>({
-        coordinateNumbers: [],
-        coordinateGap: []
+    coordinates = computed<Coordinates>(() => {
+        const coordinates: Coordinates = {
+            coordinateNumbers: [],
+            coordinateGap: []
+        };
+
+        const radius = (this.altimeterConfig().clockWidth / 2) - this.altimeterConfig().numbersOffset;
+        const gapRadius = (this.altimeterConfig().clockWidth / 2) - this.altimeterConfig().gapRadius;
+
+        //Numbers Coordinates
+        for (let i = 0; i < this.altimeterConfig().numberAmount; i++) {
+            const angle = (i * 2 * Math.PI) / this.altimeterConfig().numberAmount;
+            coordinates.coordinateNumbers.push({ number: i, x: radius * Math.cos(angle - Math.PI / 2), y: radius * Math.sin(angle - Math.PI / 2), degree: angle * 180 / Math.PI });
+        }
+
+        //Gap Coordinates
+        for (let j = 0; j < this.ALTIMETER_GAP_AMOUNT * this.altimeterConfig().numberAmount; j++) {
+            const gapAngle = (j * 2 * Math.PI) / (this.ALTIMETER_GAP_AMOUNT * this.altimeterConfig().numberAmount);
+            coordinates.coordinateGap.push({ x: gapRadius * Math.cos(gapAngle - Math.PI / 2), y: gapRadius * Math.sin(gapAngle - Math.PI / 2), degree: gapAngle * 180 / Math.PI });
+        }
+
+        return coordinates;
     });
 
     coordinatesKnob = signal<CoordinatesKnob[]>([])
-    
+
     TOTAL_DEGREES: number = 360;
     FEET_PER_ALTIMETER: number = 1000;
     BAROMETRIC_ALTITUDE_DEFAULT: number = 2882;
@@ -88,8 +108,8 @@ export class Altimeter {
     CLIMB_RATE: number = 800; // feet per second
     SIMULATION_QUOTA: number[] = [200, 800, -200, -700, -300, 200, 700, 100, 0];
     TELEMETRY_REFRESH_RATE: number = 20; // milliseconds
-    currentAltitudeInfo: WritableSignal<{realAltitude: number, fixedAltitude: number, degrees: number}> = signal({realAltitude: this.DEFAULT_ALTITUDE, fixedAltitude: this.DEFAULT_ALTITUDE, degrees: this.DEFAULT_DEGREES});
-    
+    currentAltitudeInfo: WritableSignal<{ realAltitude: number, fixedAltitude: number, degrees: number }> = signal({ realAltitude: this.DEFAULT_ALTITUDE, fixedAltitude: this.DEFAULT_ALTITUDE, degrees: this.DEFAULT_DEGREES });
+
     altitudeInterval !: NodeJS.Timeout;
     climbRateInterval !: NodeJS.Timeout;
 
@@ -103,7 +123,7 @@ export class Altimeter {
             degree: 45
         }
     }
-    pneuModeSelected = signal<{name: string, degree: number}>(this.pneuModes.pneumatic);
+    pneuModeSelected = signal<{ name: string, degree: number }>(this.pneuModes.pneumatic);
 
     altitudeCalibration = signal<number>(this.BAROMETRIC_ALTITUDE_DEFAULT);
     currentKnobCalibrationDegrees = signal<number>(this.DEFAULT_DEGREES);
@@ -114,52 +134,48 @@ export class Altimeter {
     })
 
     constructor() {
-        const coords: Coordinates  = this.generateNumbersCoordinates();
-        this.coordinates.set(coords);
-        let currentDegrees = parseFloat((parseFloat(((this.DEFAULT_ALTITUDE)/this.FEET_PER_ALTIMETER % 1).toFixed(3)) * this.TOTAL_DEGREES).toFixed(2));
-        this.currentAltitudeInfo.set({realAltitude: this.DEFAULT_ALTITUDE, fixedAltitude: this.DEFAULT_ALTITUDE, degrees: currentDegrees});
-
-        console.log("Coordinates: ", this.coordinates());
+        let currentDegrees = parseFloat((parseFloat(((this.DEFAULT_ALTITUDE) / this.FEET_PER_ALTIMETER % 1).toFixed(3)) * this.TOTAL_DEGREES).toFixed(2));
+        this.currentAltitudeInfo.set({ realAltitude: this.DEFAULT_ALTITUDE, fixedAltitude: this.DEFAULT_ALTITUDE, degrees: currentDegrees });
     }
-    
 
-    onTestClick(): void{
+
+    onTestClick(): void {
         this.startSimulation();
     }
 
-    onStopClick(): void{
-        let degrees = parseFloat((parseFloat(((this.DEFAULT_ALTITUDE)/this.FEET_PER_ALTIMETER % 1).toFixed(3)) * this.TOTAL_DEGREES).toFixed(2));
-        this.currentAltitudeInfo.set({realAltitude: this.DEFAULT_ALTITUDE, fixedAltitude: this.DEFAULT_ALTITUDE, degrees: degrees});
+    onStopClick(): void {
+        let degrees = parseFloat((parseFloat(((this.DEFAULT_ALTITUDE) / this.FEET_PER_ALTIMETER % 1).toFixed(3)) * this.TOTAL_DEGREES).toFixed(2));
+        this.currentAltitudeInfo.set({ realAltitude: this.DEFAULT_ALTITUDE, fixedAltitude: this.DEFAULT_ALTITUDE, degrees: degrees });
         clearInterval(this.altitudeInterval)
         clearInterval(this.climbRateInterval)
     }
 
-    onChangePneumaticMode(mode: string): void{
-        if(mode === this.pneuModes.pneumatic.name.toLowerCase()){
+    onChangePneumaticMode(mode: string): void {
+        if (mode === this.pneuModes.pneumatic.name.toLowerCase()) {
             this.pneuModeSelected.set(this.pneuModes.pneumatic);
             return
         }
-        if(mode === this.pneuModes.electric.name.toLowerCase()){
+        if (mode === this.pneuModes.electric.name.toLowerCase()) {
             this.pneuModeSelected.set(this.pneuModes.electric)
             return
         }
     }
 
-    onBarometricPressure(operation: string): void{
-        let angle = (360 /this.ALTIMETER_KNOB_POSITIONS); 
-        if(operation == '+'){
+    onBarometricPressure(operation: string): void {
+        let angle = (360 / this.ALTIMETER_KNOB_POSITIONS);
+        if (operation == '+') {
             this.currentKnobCalibrationDegrees.update((degree) => degree += angle)
             this.altitudeCalibration.update(calibration => ++calibration);
             return
         }
 
-        if(operation == "-"){
+        if (operation == "-") {
             this.currentKnobCalibrationDegrees.update((degree) => degree -= angle)
             this.altitudeCalibration.update(calibration => --calibration);
             return
         }
 
-        if(operation === "reset"){
+        if (operation === "reset") {
             this.currentKnobCalibrationDegrees.set(this.DEFAULT_DEGREES)
             this.altitudeCalibration.set(this.BAROMETRIC_ALTITUDE_DEFAULT);
             return
@@ -174,18 +190,18 @@ export class Altimeter {
         if (this.altitudeInterval) {
             clearInterval(this.altitudeInterval);
         }
-        if(this.climbRateInterval){
+        if (this.climbRateInterval) {
             clearInterval(this.climbRateInterval);
         }
 
-        if(this.SIMULATION_QUOTA.length){
+        if (this.SIMULATION_QUOTA.length) {
             let climbRateIndex = 0;
 
-            this.climbRateInterval = setInterval(()=>{
+            this.climbRateInterval = setInterval(() => {
                 climbRate = this.SIMULATION_QUOTA[climbRateIndex];
-                if(climbRateIndex == this.SIMULATION_QUOTA.length - 1 ){
+                if (climbRateIndex == this.SIMULATION_QUOTA.length - 1) {
                     climbRateIndex = 0;
-                }else{
+                } else {
                     climbRateIndex++;
                 }
             }, 2000);
@@ -195,21 +211,24 @@ export class Altimeter {
             const increment = this.getSimulationClimbRatePlotted(climbRate, this.TELEMETRY_REFRESH_RATE);
             let currentAltitude = parseFloat((this.currentAltitudeInfo().realAltitude + increment).toFixed(5));
             let fixedAltitude = parseFloat((currentAltitude).toFixed(0));
-            let currentDegrees = parseFloat((parseFloat(((currentAltitude)/this.FEET_PER_ALTIMETER % 1).toFixed(3)) * this.TOTAL_DEGREES).toFixed(2));
-            this.currentAltitudeInfo.set({realAltitude: currentAltitude, fixedAltitude: fixedAltitude, degrees: currentDegrees});
+            let currentDegrees = parseFloat((parseFloat(((currentAltitude) / this.FEET_PER_ALTIMETER % 1).toFixed(3)) * this.TOTAL_DEGREES).toFixed(2));
+            this.currentAltitudeInfo.set({ realAltitude: currentAltitude, fixedAltitude: fixedAltitude, degrees: currentDegrees });
             console.log(`Altimeter: ${this.currentAltitudeInfo().realAltitude} ft | Degrees: ${this.currentAltitudeInfo().degrees}`);
 
-            this.altimeterChart.update(chart => ({
-                ...chart, 
-                data: [...(chart.data ?? []), fixedAltitude]
-            }));
+            this.altimeterChart.update(chart => {
+                const newData = [...(chart.data ?? []), fixedAltitude];
+                const newLabels = [...(chart.label ?? []), ms += this.TELEMETRY_REFRESH_RATE];
 
-            this.altimeterChart.update(chart => ({
-                ...chart, 
-                label: [...(chart.label ?? []), ms+=this.TELEMETRY_REFRESH_RATE]
-            }));
+                if (newData.length > 100) {
+                    newData.shift();
+                    newLabels.shift();
+                }
 
-            console.log("Chart", this.altimeterChart())
+                return {
+                    data: newData,
+                    label: newLabels
+                };
+            });
         }, this.TELEMETRY_REFRESH_RATE);
 
     }
@@ -219,30 +238,7 @@ export class Altimeter {
         return increment;
     }
 
-    generateNumbersCoordinates(): Coordinates {
-        const coordinates: Coordinates = {
-            coordinateNumbers: [],
-            coordinateGap: []
-        };
-        
-        const radius = (this.altimeterConfig().clockWidth / 2) - this.altimeterConfig().numbersOffset;
-        const gapRadius = (this.altimeterConfig().clockWidth / 2) - this.altimeterConfig().gapRadius;
-        
-        //Numbers Coordinates
-        for (let i = 0; i < this.altimeterConfig().numberAmount; i++) {
-            const angle = (i * 2 * Math.PI) / this.altimeterConfig().numberAmount;
-            coordinates.coordinateNumbers.push({ number: i, x: radius * Math.cos(angle - Math.PI/2), y: radius * Math.sin(angle - Math.PI/2), degree: angle * 180/Math.PI });
-        }
 
-        //Gap Coordinates
-        for (let j = 0; j < this.ALTIMETER_GAP_AMOUNT*this.altimeterConfig().numberAmount; j++) {
-            const gapAngle = (j * 2 * Math.PI) / (this.ALTIMETER_GAP_AMOUNT * this.altimeterConfig().numberAmount);
-            coordinates.coordinateGap.push({ x: gapRadius * Math.cos(gapAngle - Math.PI/2), y: gapRadius * Math.sin(gapAngle - Math.PI/2), degree: gapAngle * 180/Math.PI  });
-        }
-
-        return coordinates ;
-
-    }
 
 
 }
